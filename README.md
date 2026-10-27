@@ -6,6 +6,7 @@
 ## Bugs
 
 ## TODO
+1. Prepare Core Types for Rational, Complex, Matrix, Polynomials.
 
 
 ## Test Cases:
