@@ -2,6 +2,8 @@
 
 Complex::Complex() {}
 
+Complex::Complex(const Rational &r) : re(r), im(Rational(0, 1)) {}
+
 Complex::Complex(const Rational &r, const Rational &i) : re(r), im(i) {}
 
 Complex::Complex(const Complex &src) { *this = src; }
@@ -88,6 +90,10 @@ Complex Complex::pow(int e) const
     }
     return result;
 }
+
+Rational Complex::getRe() const { return re; }
+
+Rational Complex::getIm() const { return im; }
 
 std::string Complex::toString() const
 {
