@@ -73,14 +73,14 @@ Complex Complex::pow(int e) const
     if (e < 0)
         throw std::domain_error("Complex::pow: negative exponent not supported");
 
-    Complex result(Rational(1, 1), Rational(1, 1));
+    Complex result(Rational(1, 1), Rational(0, 1));
     Complex base(*this);
     while (e > 0)
     {
         if (e & 1)
         {
             Rational    nr = result.re * base.re - result.im * base.im;
-            Rational    ni = result.re * base.re + result.im * base.im;
+            Rational    ni = result.re * base.im + result.im * base.re;
             result = Complex(nr, ni);
         }
         Rational    br = base.re * base.re - base.im * base.im;
