@@ -30,12 +30,12 @@ const SymbolTable	&Computor::variables() const	{	return _vars;	}
 
 std::string	Computor::indent(const std::string &text)
 {
-	std::string	out = "	";
+	std::string	out = "  ";
 	for (size_t k = 0; k < text.size(); k++)
 	{
 		out += text[k];
 		if (text[k] == '\n' && k + 1 < text.size())
-			out += " ";
+			out += "  ";
 	}
 	return out;
 }
