@@ -1,16 +1,23 @@
 #include "../includes/Computor.hpp"
+#include "../includes/Evaluator.hpp"
 #include <stdexcept>
 
 std::string Computor::process(const std::string &line)
 {
 	Statement	s = Parser::parseStatement(line);
+	Evaluator	eval(_vars);
 
 	switch (s.kind)
 	{
 		case S_EVAL:
 		case S_QUERY:
-			return " " + evaluate(s.lhs).toString();
+			return indent(eval.evaluate(s.lhs).toString());
 		case S_ASSIGN_VAR:
+		{
+			Value	v = eval.evaluate(s.rhs);
+			_vars.set(s.name, v);
+			return indent(v.toString());
+		}
 		case S_ASSIGN_FUNC:
 			throw std::runtime_error("assignment is not supported yet (S3)");
 		case S_SOLVE:
@@ -19,37 +26,16 @@ std::string Computor::process(const std::string &line)
 	throw std::logic_error("unknown statement");
 }
 
-Complex	Computor::evaluate(const NodePtr &node)
+const SymbolTable	&Computor::variables() const	{	return _vars;	}
+
+std::string	Computor::indent(const std::string &text)
 {
-	switch (node->kind())
+	std::string	out = "	";
+	for (size_t k = 0; k < text.size(); k++)
 	{
-		case N_NUMBER:
-			return Complex(static_cast<const NumberNode &>(*node).value);
-		case N_IMAGINARY:
-			return Complex::i();
-		case N_UNARY:
-			return -evaluate(static_cast<const UnaryNode &>(*node).operand);
-		case N_BINARY:
-		{
-			const BinaryNode	&b = static_cast<const BinaryNode &>(*node);
-			Complex	l = evaluate(b.left);
-			Complex	r = evaluate(b.right);
-			if (b.op == "+")	return l + r;
-			if (b.op == "-")	return l - r;
-			if (b.op == "*")	return l * r;
-			if (b.op == "/")	return l / r;
-			if (b.op == "%")	return l % r;
-			if (b.op == "^")	return l.pow(r);
-			if (b.op == "**")
-				throw std::runtime_error("'**' is matrix multiplication; use '*' for numbers");
-			throw std::logic_error("unknown operator " + b.op);
-		}
-		case N_VARIABLE:
-			throw std::runtime_error("unknown variable '" + static_cast<const VariableNode &>(*node).name + "'");
-		case N_CALL:
-			throw std::runtime_error("unknown function '" + static_cast<const VariableNode &>(*node).name + "'");
-		case N_MATRIX:
-			throw std::runtime_error("matrices are not supported yet (S4)");
+		out += text[k];
+		if (text[k] == '\n' && k + 1 < text.size())
+			out += " ";
 	}
-	throw std::logic_error("unknown node");
+	return out;
 }
