@@ -4,6 +4,7 @@
 #include <csignal>
 #include <unistd.h>
 #include "../includes/Computor.hpp"
+#include "../includes/Complex.hpp"
 
 static volatile sig_atomic_t g_interrupted = 0;
 
@@ -29,34 +30,35 @@ static std::string trim(const std::string &s)
 
 int main()
 {
-      installSigInt();
-      const bool  interactive = isatty(STDIN_FILENO);
-      Computor    computor;
-      std::string line;
+	installSigInt();
+	const bool  interactive = isatty(STDIN_FILENO);
+	Computor    computor;
+	std::string line;
+	Complex		c;
 
-      while (true)
-      {
-            if (interactive)
-                  std::cout << "> " << std::flush;
-            if (!std::getline(std::cin, line))
-            {
-                  if (interactive)
-                        std::cout << std::endl;
-                  break;
-            }
-            line = trim(line);
-            if (line.empty())
-                  continue;
-            if (line == "exit" || line == "quit")
-                  break;
-            try
-            {
-                  std::cout << computor.process(line) << std::endl;
-            }
-            catch (const std::exception &e)
-            {
-                  std::cerr << "    Error: " << e.what() << std::endl;
-            }
-      }
-      return 0;
+	while (true)
+	{
+		if (interactive)
+				std::cout << "> " << std::flush;
+		if (!std::getline(std::cin, line))
+		{
+				if (interactive)
+					std::cout << std::endl;
+				break;
+		}
+		line = trim(line);
+		if (line.empty())
+				continue;
+		if (line == "exit" || line == "quit")
+				break;
+		try
+		{
+				std::cout << computor.process(line) << std::endl;
+		}
+		catch (const std::exception &e)
+		{
+				std::cerr << "    Error: " << e.what() << std::endl;
+		}
+	}
+	return 0;
 }
