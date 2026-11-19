@@ -1,0 +1,16 @@
+services:
+  valgrind:
+    build: .
+    container_name: valgrind_env
+    # Mounts the current directory on your host to /app in the container
+    volumes:
+      - .:/app
+    working_dir: /app
+    # Required for Valgrind/GDB to inspect memory and trace processes properly
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    # Keeps the container running if you want to exec into it
+    stdin_open: true
+    tty: true
