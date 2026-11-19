@@ -1,6 +1,6 @@
 NAME = computorv2
 
-SRCS = srcs/testLexer.cpp srcs/Rational.cpp srcs/Complex.cpp srcs/Matrix.cpp srcs/Polynomial.cpp srcs/Lexer.cpp
+SRCS = srcs/test.cpp srcs/Rational.cpp srcs/Complex.cpp srcs/Computor.cpp srcs/Lexer.cpp srcs/Ast.cpp srcs/Parser.cpp
 
 OBJS = ${SRCS:.cpp=.o}
 

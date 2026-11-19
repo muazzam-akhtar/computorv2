@@ -1,136 +1,148 @@
 #include "../includes/Lexer.hpp"
 #include <cctype>
-#include <stdexcept>
+#include <cstdlib>
+#include <sstream>
 
-/* ------------------------------------------------------------------ */
-/*  Construction / destruction                                        */
-/* ------------------------------------------------------------------ */
-
-Lexer::Lexer(const std::string &src) : _src(src), _pos(0) {}
-
-Lexer::~Lexer() {}
-
-/* ------------------------------------------------------------------ */
-/*  Public entry point                                                */
-/* ------------------------------------------------------------------ */
-
-std::vector<Token> Lexer::tokenize()
+const char  *tokenName(Tokentype type)
 {
-    _pos = 0;
-    std::vector<Token> tokens;
-    while (true)
+    switch (type)
     {
-        skipWhitespace();
-        if (atEnd())
-            break;
-        char c = peek();
-        if (std::isdigit(static_cast<unsigned char>(c)))
-            tokens.push_back(makeNumber());
-        else if (std::isalpha(static_cast<unsigned char>(c)))
-            tokens.push_back(makeIdent());
+        case T_NUMBER: return "NUMBER";
+        case T_IDENT: return "IDENT";
+        case T_IMAG: return "IMAG";
+        case T_PLUS: return "PLUS";
+        case T_MINUS: return "MINUS";
+        case T_STAR: return "STAR";
+        case T_DSTAR: return "DSTAR";
+        case T_SLASH: return "SLASH";
+        case T_PERCENT: return "PERCENT";
+        case T_CARET: return "CARET";
+        case T_LPAREN: return "LPAREN";
+        case T_RPAREN: return "RPAREN";
+        case T_LBRACKET: return "LBRACKET";
+        case T_RBRACKET: return "RBRACKET";
+        case T_COMMA: return "COMMA";
+        case T_SEMICOLON: return "SEMICOLON";
+        case T_EQUAL: return "EQUAL";
+        case T_QUESTION: return "QUESTION";
+        case T_END: return "END";
+    }
+    return "?";
+}
+
+static std::string  withColumn(const std::string &msg, size_t pos)
+{
+    std::ostringstream  ss;
+    ss << "syntax error at column " << pos + 1 << ": " << msg;
+    return ss.str();
+}
+
+SyntaxError::SyntaxError(const std::string &msg, size_t pos) : std::runtime_error(withColumn(msg, pos)), _pos(pos) {}
+
+size_t  SyntaxError::pos() const {  return _pos;    }
+
+static bool isDigit(char c) {   return std::isdigit(static_cast<unsigned char>(c)) != 0;    }
+
+static bool isAlpha(char c) {   return std::isalpha(static_cast<unsigned char>(c)) != 0;    }
+
+static bool isSpace(char c) {   return std::isspace(static_cast<unsigned char>(c)) != 0;    }
+
+static Token    readNumber(const std::string &s, size_t &i)
+{
+    size_t  start = i;
+    while (i < s.size() && isDigit(s[i]))
+        ++i;
+    if (i < s.size() && s[i] == '.')
+    {
+        ++i;
+        if (i >= s.size() || !isDigit(s[i]))
+            throw SyntaxError("malformed number '" + s.substr(start, i - start) + "'", start);
+        while (i < s.size() && isDigit(s[i]))
+            ++i;
+    }
+    if (i < s.size() && s[i] == '.')
+        throw SyntaxError("malformed number '" + s.substr(start, i - start + 1) + "'", start);
+    std::string text = s.substr(start, i - start);
+    return Token(T_NUMBER, text, start, std::strtod(text.c_str(), nullptr));
+}
+
+static Token    readName(const std::string &s, size_t &i)
+{
+    size_t  start = i;
+    while (i < s.size() && isAlpha(s[i]))
+        ++i;
+    if (i < s.size() && (isDigit(s[i]) || s[i] == '_'))
+    {
+        size_t  end = i;
+        while (end < s.size() && (std::isalnum(static_cast<unsigned char>(s[end])) || s[end] == '_'))
+            ++end;
+        throw SyntaxError("invalid name '" + s.substr(start, end - start) + "' (names contain letters only)", start);
+    }
+    std::string name = s.substr(start, i - start);
+    for (size_t k = 0; k < name.size(); k++)
+        name[k] = static_cast<char>(std::tolower(static_cast<unsigned char>(name[k])));
+    return Token(name == "i" ? T_IMAG : T_IDENT, name, start);
+}
+
+std::vector<Token>  Lexer::tokenize(const std::string &s)
+{
+    std::vector<Token>  out;
+    size_t              i = 0;
+
+    while (i < s.size())
+    {
+        char c = s[i];
+        if (isSpace(c))
+            i++;
+        else if (isDigit(c) || (c == '.' && i + 1 < s.size() && isDigit(s[i + 1])))
+            out.push_back(readNumber(s, i));
+        else if (isAlpha(c))
+            out.push_back(readName(s, i));
+        else if (c == '*' && i + 1 < s.size() && s[i + 1] == '*')
+        {
+            out.push_back(Token(T_DSTAR, "**", i));
+            i += 2;
+        }
         else
-            tokens.push_back(makeOperator());
-    }
-    tokens.push_back(Token{ TokenType::End, "", _pos });
-    return tokens;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Cursor helpers                                                    */
-/* ------------------------------------------------------------------ */
-
-bool    Lexer::atEnd() const { return _pos >= _src.size(); }
-
-char    Lexer::peek() const { return atEnd() ? '\0' : _src[_pos]; }
-
-char    Lexer::peekNext() const { return (_pos + 1 >= _src.size()) ? '\0' : _src[_pos + 1]; }
-
-char    Lexer::advance() { return _src[_pos++]; }
-
-void    Lexer::skipWhitespace()
-{
-    while (!atEnd() && std::isspace(static_cast<unsigned char>(peek())))
-        ++_pos;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Token builders                                                    */
-/* ------------------------------------------------------------------ */
-
-/*
- * makeNumber: consumes [0-9]+
- * We only recognize integers at the lexical level. Rationals like "1/2"
- * are lexed as Number("1"), Slash, Number("2") and resolved by the parser.
- * A decimal point '.' is NOT part of the language (subject only shows ints);
- * it will be caught by makeOperator as an invalid character.
-*/
-
-Token   Lexer::makeNumber()
-{
-    std::size_t start = _pos;
-    while (!atEnd() && std::isdigit(static_cast<unsigned char>(peek())))
-        advance();
-    return Token{ TokenType::Number, _src.substr(start, _pos - start), start };
-}
-
-/*
- * makeIdentifier: consumes [A-Za-z]+
- * Digits are NOT allowed inside identifiers ("2*xx" is 2 * variable xx;
- * "x2" is therefore invalid — the '2' becomes an unexpected Number after an
- * Ident, and the parser will report it).
- * Case is preserved here; the Context lowercases keys.
-*/
-
-Token   Lexer::makeIdent()
-{
-    std::size_t start = _pos;
-    while (!atEnd() && std::isalpha(static_cast<unsigned char>(peek())))
-        advance();
-    return Token{ TokenType::Ident, _src.substr(start, _pos - start), start };
-}
-
-/*
- * makeOperator: handles every non-alphanumeric token.
- * Order matters: '**' must be tested before '*'.
-*/
-
-Token   Lexer::makeOperator()
-{
-    std::size_t start = _pos;
-    char    c = advance();
-    
-    switch (c)
-    {
-        case '+': return Token{ TokenType::Plus,    "+",    start };
-        case '-': return Token{ TokenType::Minus,   "-",    start };
-        case '/': return Token{ TokenType::Slash,   "/",    start };
-        case '%': return Token{ TokenType::Percent, "%",    start };
-        case '^': return Token{ TokenType::Caret,   "^",    start };
-        case '(': return Token{ TokenType::LParen,  "(",    start };
-        case ')': return Token{ TokenType::RParen,  ")",    start };
-        case '[': return Token{ TokenType::LBracket,"[",    start };
-        case ']': return Token{ TokenType::RBracket,"]",    start };
-        case ',': return Token{ TokenType::Comma,   ",",    start };
-        case ';': return Token{ TokenType::Semicolon,";",   start };
-        case '=': return Token{ TokenType::Assign,  "=",    start };
-        case '?': return Token{ TokenType::Query,   "?",    start };
-        case '*':
-            if (peek() == '*')
+        {
+            Tokentype   t;
+            switch (c)
             {
-                advance();
-                return Token{ TokenType::StarStar, "**", start };
+                case '+': t = T_PLUS;       break;
+                case '-': t = T_MINUS;      break;
+                case '*': t = T_STAR;       break;
+                case '/': t = T_SLASH;      break;
+                case '%': t = T_PERCENT;    break;
+                case '^': t = T_CARET;      break;
+                case '(': t = T_LPAREN;     break;
+                case ')': t = T_RPAREN;     break;
+                case '[': t = T_LBRACKET;   break;
+                case ']': t = T_RBRACKET;   break;
+                case ',': t = T_COMMA;      break;
+                case ';': t = T_SEMICOLON;  break;
+                case '=': t = T_EQUAL;      break;
+                case '?': t = T_QUESTION;   break;
+                default:
+                    throw SyntaxError(std::string("unexpected character '") + c + "'", i);
             }
-            return Token{ TokenType::Star, "*", start };
+            out.push_back(Token(t, std::string(1, c), i));
+            ++i;
+        }
     }
-
-    fail(std::string("unexpected character '") + c + "'", start);
+    out.push_back(Token(T_END, "", s.size()));
+    return (out);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Error reporting                                                   */
-/* ------------------------------------------------------------------ */
-
-void    Lexer::fail(const std::string &msg, std::size_t pos) const
+std::string Lexer::dump(const std::vector<Token> &tokens)
 {
-    throw std::invalid_argument("Lexer: " + msg + " at column " + std::to_string(pos));
+    std::string out;
+    for (size_t k = 0; k < tokens.size(); k++)
+    {
+        if (k)
+            out += " ";
+        out += tokenName(tokens[k].type);
+        if (tokens[k].type == T_NUMBER || tokens[k].type == T_IDENT)
+            out += "(" + tokens[k].text + ")";
+    }
+    return out;
 }

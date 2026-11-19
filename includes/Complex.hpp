@@ -1,35 +1,41 @@
-# ifndef COMPLEX_HPP
-# define COMPLEX_HPP
-
+#ifndef COMPLEX_HPP
+#define COMPLEX_HPP
 #include <string>
+#include <ostream>
 #include "Rational.hpp"
 
-class Complex {
-    private:
-        Rational    re, im;
-    public:
-        Complex();
-        Complex(const Rational &);
-        Complex(const Rational &, const Rational &);
-        Complex(const Complex &);
-        Complex    &operator=(const Complex &);
-        ~Complex(void);
+class Complex
+{
+	public:
+		Complex();
+		Complex(const Rational &);
+		Complex(const Rational &, const Rational &);
+		static Complex  i();
 
-        Complex operator+(const Rational&) const;
-        Complex operator-(const Rational&) const;
-        Complex operator*(const Rational&) const;
-        Complex operator/(const Rational&) const;
-        Complex operator+(const Complex &) const;
-        Complex operator-(const Complex &) const;
-        Complex operator*(const Complex &) const;
-        Complex operator/(const Complex &) const;
-        Complex pow(int e) const;
+		const Rational  &re() const;
+		const Rational  &im() const;
 
-        Rational getRe() const;
-        Rational getIm() const;
-        
-        std::string toString() const;
-        bool isZero() const;
+		bool    isReal() const;
+		bool    isZero() const;
+
+		Complex operator+(const Complex &) const;
+		Complex operator-(const Complex &) const;
+		Complex operator*(const Complex &) const;
+		Complex operator/(const Complex &) const;
+		Complex operator%(const Complex &) const;
+		Complex operator-() const;
+		Complex pow(const Complex &) const;
+
+		bool    operator==(const Complex &) const;
+		bool    operator!=(const Complex &) const;
+
+		std::string toString() const;
+	
+	private:
+		Rational    _re;
+		Rational    _im;
 };
+
+std::ostream    &operator<<(std::ostream &, const Complex &);
 
 #endif

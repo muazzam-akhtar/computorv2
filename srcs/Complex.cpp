@@ -1,113 +1,111 @@
 #include "../includes/Complex.hpp"
+#include <stdexcept>
+#include <cmath>
 
-Complex::Complex() {}
+Complex::Complex() : _re(0), _im(0) {}
 
-Complex::Complex(const Rational &r) : re(r), im(Rational(0, 1)) {}
+Complex::Complex(const Rational &r) : _re(r), _im(0) {}
 
-Complex::Complex(const Rational &r, const Rational &i) : re(r), im(i) {}
+Complex::Complex(const Rational &r, const Rational &im) : _re(r), _im(im) {}
 
-Complex::Complex(const Complex &src) { *this = src; }
+Complex Complex::i() {  return Complex(0, 1);    }
 
-Complex &Complex::operator=(const Complex &src)
-{
-    if (this != &src)
-    {
-        this->re = src.re;
-        this->im = src.im;
-    }
-    return *this;
-}
+const Rational  &Complex::re() const {  return _re; }
 
-Complex::~Complex() {}
+const Rational  &Complex::im() const {  return _im; }
 
-Complex Complex::operator+(const Rational &r) const
-{
-    return (Complex(re + r, im));
-}
+bool    Complex::isReal() const {   return _im.isZero();    }
 
-Complex Complex::operator-(const Rational &r) const
-{
-    return (Complex(re - r, im));
-}
-
-Complex Complex::operator*(const Rational &r) const
-{
-    return (Complex(re * r, im * r));
-}
-
-Complex Complex::operator/(const Rational &r) const
-{
-    return (Complex(re / r, im / r));
-}
+bool    Complex::isZero() const {   return _re.isZero() && _im.isZero();    }
 
 Complex Complex::operator+(const Complex &c) const
 {
-    return (Complex(re + c.re, im + c.im));
+    return (Complex(_re + c.re(), _im + c.im()));
 }
 
 Complex Complex::operator-(const Complex &c) const
 {
-    return (Complex(re - c.re, im - c.im));
+    return (Complex(_re - c.re(), _im - c.im()));
+}
+
+Complex Complex::operator-() const
+{
+    return (Complex(-_re, -_im));
 }
 
 Complex Complex::operator*(const Complex &c) const
 {
-    Rational real = re * c.re - im * c.im;
-    Rational imag = re * c.im + im * c.re;
-    return Complex(real, imag);
+    return (
+        Complex(
+            (_re * c.re()) - (_im * c.im()),
+            (_re * c.im() + (_im * c.re()))
+        )
+    );
 }
 
 Complex Complex::operator/(const Complex &c) const
 {
-    Rational denom = c.re * c.re + c.im * c.im;   // |o|²
-    if (denom.isZero())
-        throw std::domain_error("Complex: division by zero");
-    Rational real = (re * c.re + im * c.im) / denom;
-    Rational imag = (im * c.re - re * c.im) / denom;
-    return Complex(real, imag);
+    if (c.isZero())
+        throw std::runtime_error("division by zero");
+    if (c.isReal())
+        return (Complex(_re / c.re(), _im / c.re()));
+    Rational    den = c.re().pow(2) + c.im().pow(2);
+    return (
+        Complex(
+            ((_re * c.re()) + (_im * c.im())) / den,
+            ((_im * c.re()) - (_re * c.im())) / den
+        )
+    );
 }
 
-
-Complex Complex::pow(int e) const
+Complex Complex::operator%(const Complex &c) const
 {
-    if (e < 0)
-        throw std::domain_error("Complex::pow: negative exponent not supported");
+    if (!isReal() || !c.isReal())
+        throw std::runtime_error("modulo is only defined for real numbers");
+    return (Complex(_re % c.re()));
+}
 
-    Complex result(Rational(1, 1), Rational(0, 1));
-    Complex base(*this);
-    while (e > 0)
+Complex Complex::pow(const Complex &e) const
+{
+    if (!e.isReal())
+        throw std::runtime_error("exponent must be a real integer >= 0");
+    const Rational &n = e.re();
+    if (!n.isInteger() || n.value() < 0)
+        throw std::runtime_error("exponent must be a positive integer");
+    if (n.value() > 1e15)
+        throw std::overflow_error("exponent too large");
+    if (isReal())
+        return Complex(_re.pow(n));
+    unsigned long long  k = static_cast<unsigned long long>(std::llround(n.value()));
+    Complex base = *this;
+    Complex result(1);
+    while (k > 0)
     {
-        if (e & 1)
-        {
-            Rational    nr = result.re * base.re - result.im * base.im;
-            Rational    ni = result.re * base.im + result.im * base.re;
-            result = Complex(nr, ni);
-        }
-        Rational    br = base.re * base.re - base.im * base.im;
-        Rational    bi = Rational(2, 1) * base.re * base.im;
-        base = Complex(br, bi);
-        e >>= 1;
+        if (k & 1)
+            result = result * base;
+        k >>= 1;
+        if (k > 0)
+            base = base * base;
     }
     return result;
 }
 
-Rational Complex::getRe() const { return re; }
+bool    Complex::operator==(const Complex &c) const {   return _re == c.re() && _im == c.im();  }
 
-Rational Complex::getIm() const { return im; }
+bool    Complex::operator!=(const Complex &c) const {   return !(*this == c);    }
 
 std::string Complex::toString() const
 {
-    std::string r = re.toString();
-    std::string i = im.toString();
-    bool    neg = (i.size() > 0 && i[0] == '-');
-    if (im.isZero())
-        return r;
-    if (neg)
-    {
-        i = i.substr(1);
-        return r + " - " + i + "i";
-    }
-    return r + " + " + i + "i";
+    if (isReal())
+        return _re.toString();
+    
+    bool    neg = _im.value() < 0;
+    Rational    absI = neg ? -_im : _im;
+    std::string coef = (absI == Rational(1)) ? "" : absI.toString();
+
+    if (_re.isZero())
+        return (neg ? "-" : "") + coef + "i";
+    return _re.toString() + (neg ? " - " : " + ") + coef + "i";
 }
 
-bool    Complex::isZero() const { return (re.isZero() && im.isZero()); }
+std::ostream    &operator<<(std::ostream &os, const Complex &src)   {   return os << src.toString();    }
