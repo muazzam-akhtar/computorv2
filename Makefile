@@ -2,7 +2,7 @@ NAME = computorv2
 
 SRCS = srcs/main.cpp srcs/Rational.cpp srcs/Complex.cpp srcs/Computor.cpp \
 		srcs/Lexer.cpp srcs/Ast.cpp srcs/Parser.cpp srcs/Value.cpp \
-		srcs/SymbolTable.cpp
+		srcs/SymbolTable.cpp srcs/Evaluator.cpp
 
 OBJS = ${SRCS:.cpp=.o}
 
