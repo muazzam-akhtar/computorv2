@@ -2,15 +2,17 @@
 #define COMPUTOR_HPP
 
 #include <string>
-#include "Complex.hpp"
 #include "Parser.hpp"
+#include "SymbolTable.hpp"
 
 class Computor
 {
 	public:
-		std::string process(const std::string &);
+		std::string			process(const std::string &);
+		const SymbolTable	&variables() const;
 	private:
-		Complex	evaluate(const NodePtr &node);
+		SymbolTable			_vars;
+		static std::string	indent(const std::string &text);
 };
 
 #endif
