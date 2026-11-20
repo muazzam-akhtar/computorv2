@@ -1,8 +1,8 @@
 NAME = computorv2
 
-SRCS = srcs/test_eval.cpp srcs/Rational.cpp srcs/Complex.cpp srcs/Computor.cpp \
+SRCS = srcs/test_matrix.cpp srcs/Rational.cpp srcs/Complex.cpp srcs/Computor.cpp \
 		srcs/Lexer.cpp srcs/Ast.cpp srcs/Parser.cpp srcs/Value.cpp \
-		srcs/SymbolTable.cpp srcs/Evaluator.cpp
+		srcs/SymbolTable.cpp srcs/Evaluator.cpp srcs/Matrix.cpp
 
 OBJS = ${SRCS:.cpp=.o}
 

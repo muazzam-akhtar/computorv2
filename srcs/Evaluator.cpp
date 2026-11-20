@@ -23,7 +23,21 @@ Value	Evaluator::evaluate(const NodePtr &node) const
 			return Value::apply(b.op, l, r);
 		}
 		case N_MATRIX:
-			throw std::runtime_error("matrices are not supported yet (S4)");
+		{
+			const MatrixNode	&m = static_cast<const MatrixNode &>(*node);
+			std::vector<std::vector<Complex>>	rows(m.rows.size());
+			for (size_t r = 0; r < m.rows.size(); r++)
+			{
+				for (size_t c = 0; c < m.rows[r].size(); c++)
+				{
+					Value	entry = evaluate(m.rows[r][c]);
+					if (entry.isMatrix())
+						throw std::runtime_error("a matrix entry must be a number, not a matrix");
+					rows[r].push_back(entry.scalar());
+				}
+			}
+			return Value(Matrix(rows));
+		}
 		case N_CALL:
 			throw std::runtime_error("unknown function '" + static_cast<const CallNode &>(*node).name + "'");
 	}
