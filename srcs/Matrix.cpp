@@ -33,7 +33,12 @@ size_t	Matrix::rows() const	{	return _rows;	}
 size_t	Matrix::cols() const	{	return _cols;	}
 bool	Matrix::isSquare() const	{	return _rows == _cols;	}
 
-const Complex	&Matrix::at(size_t r, size_t c) const	{	return _data[r * _cols + c];	}
+const Complex	&Matrix::at(size_t r, size_t c) const
+{
+	if (r >= _rows || c >= _cols)
+		throw std::out_of_range("matrix index out of bounds");
+	return _data[r * _cols + c];
+}
 Complex	&Matrix::at(size_t r, size_t c)	{	return _data[r * _cols + c];	}
 
 std::string	Matrix::sizeString() const
@@ -115,7 +120,7 @@ Matrix	Matrix::multiply(const Matrix &o) const
 	Matrix	m(_rows, o._cols);
 	for (size_t r = 0; r < _rows; r++)
 	{
-		for (size_t c = 0; c < _cols; c++)
+		for (size_t c = 0; c < o._cols; c++)
 		{
 			Complex	sum(0);
 			for (size_t k = 0; k < _cols; k++)
