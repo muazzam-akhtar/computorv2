@@ -54,3 +54,22 @@ std::string	MatrixNode::toString() const
 	}
 	return s + "]";
 }
+
+int	ConstantNode::precedence() const
+{
+	if (value.isMatrix())
+		return PREC_ATOM;
+	const Complex	&c = value.scalar();
+	if (!c.isReal() && !c.re().isZero())
+		return PREC_ADD;
+	if (c.re().value() < 0 || (c.re().isZero() && c.im().value() < 0))
+		return PREC_UNARY;
+	return PREC_ATOM;
+}
+
+std::string	ConstantNode::toString() const
+{
+	if (value.isMatrix())
+		return value.matrix().toInlineString();
+	return value.toString();
+}

@@ -5,11 +5,12 @@
 #include <vector>
 #include <memory>
 #include "Rational.hpp"
+#include "Value.hpp"
 
 class Node;
 typedef std::shared_ptr<const Node> NodePtr;
 
-enum NodeKind { N_NUMBER, N_IMAGINARY, N_VARIABLE, N_UNARY, N_BINARY, N_MATRIX, N_CALL };
+enum NodeKind { N_NUMBER, N_IMAGINARY, N_VARIABLE, N_UNARY, N_BINARY, N_MATRIX, N_CALL, N_CONSTANT };
 
 enum Precedence { PREC_ADD = 1, PREC_MUL = 2, PREC_UNARY = 3, PREC_POW = 4, PREC_ATOM = 5   };
 
@@ -86,6 +87,16 @@ class CallNode : public Node
 		std::string			toString() const {	return name + "(" + arg->toString() + ")";	}
 		const std::string	name;
 		const NodePtr		arg;
+};
+
+class ConstantNode : public Node
+{
+	public:
+		explicit ConstantNode(const Value &v) : value(v) {}
+		NodeKind	kind() const {	return N_CONSTANT;	}
+		int			precedence() const;
+		std::string	toString() const;
+		const Value	value;
 };
 
 #endif
