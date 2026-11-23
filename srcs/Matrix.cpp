@@ -181,3 +181,22 @@ std::string	Matrix::toString() const
 	}
 	return s;
 }
+
+std::string	Matrix::toInlineString() const
+{
+	std::string	s = "[";
+	for (size_t r = 0; r < _rows; r++)
+	{
+		if (r)
+			s += ";";
+		s += "[";
+		for (size_t c = 0; c < _cols; c++)
+		{
+			if (c)
+				s += ",";
+			s += at(r, c).toString();
+		}
+		s += "]";
+	}
+	return s + "]";
+}

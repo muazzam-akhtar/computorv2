@@ -29,6 +29,7 @@ class Matrix
 
 		bool					operator==(const Matrix &) const;
 		std::string				toString() const;
+		std::string				toInlineString() const;
 
 	private:
 		size_t					_rows;
