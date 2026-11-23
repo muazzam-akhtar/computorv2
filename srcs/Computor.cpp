@@ -1,6 +1,42 @@
 #include "../includes/Computor.hpp"
 #include "../includes/Evaluator.hpp"
+#include "../includes/Simplifier.hpp"
 #include <stdexcept>
+
+std::string	Computor::show(const NodePtr &expr) const
+{
+	Simplifier	simp(_vars);
+	
+	if (expr->kind() == N_VARIABLE)
+	{
+		const std::string	&name = static_cast<const VariableNode &>(*expr).name;
+		if (_vars.hasFunction(name))
+		{
+			const Function	&f = _vars.getFunction(name);
+			return name + "(" + f.param + ") = " + f.toString();
+		}
+	}
+	if (Simplifier::containsCall(expr))
+	{
+		std::set<std::string>	unknowns = simp.freeVariables(expr);
+		if (unknowns.size() > 1)
+		{
+			std::string	list;
+			for (std::set<std::string>::const_iterator it = unknowns.begin(); it != unknowns.end(); ++it)
+				list += (list.empty() ? "" : ", ") + *it;
+			throw std::runtime_error("several unknowns (" + list + "): only one is supported");
+		}
+		if (unknowns.size() == 1)
+		{
+			const std::string	x = *unknowns.begin();
+			Polynomial			p;
+			if (!simp.toPolynomial(simp.substitute(expr, x), x, p))
+				throw std::runtime_error("cannot simplify this expression with the unknown '" + x + "'");
+			return p.toString(x);
+		}
+	}
+	return Evaluator(_vars).evaluate(expr).toString();
+}
 
 std::string Computor::process(const std::string &line)
 {
