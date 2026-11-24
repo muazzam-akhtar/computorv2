@@ -35,7 +35,9 @@ Solution	Solver::solve(const Polynomial &p)
 			s.roots.push_back(-b / twoA);
 		else
 		{
-			throw std::runtime_error("Sqrt function not implemented yet");
+			Complex	root = disc.sqrt();
+			s.roots.push_back((-b - root) / twoA);
+			s.roots.push_back((-b + root) / twoA);
 		}
 	}
 	for (size_t k = 0; k < s.roots.size(); k++)
