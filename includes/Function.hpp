@@ -11,6 +11,8 @@ struct Function
 	NodePtr		body;
 	bool		isPolynomial;
 	Polynomial	poly;
+
+	Function() : isPolynomial(false) {}
 	std::string	toString() const {	return (isPolynomial ? poly.toString(param) : body->toString());	}
 };
 
