@@ -13,6 +13,7 @@ class Computor
 	private:
 		SymbolTable			_vars;
 		std::string			show(const NodePtr &) const;
+		std::string			solve(const NodePtr &, const NodePtr &) const;
 		static std::string	indent(const std::string &text);
 };
 
