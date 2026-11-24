@@ -25,6 +25,7 @@ class Complex
 		Complex operator%(const Complex &) const;
 		Complex operator-() const;
 		Complex pow(const Complex &) const;
+		Complex	sqrt() const;
 
 		bool    operator==(const Complex &) const;
 		bool    operator!=(const Complex &) const;

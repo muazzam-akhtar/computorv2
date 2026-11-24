@@ -1,6 +1,7 @@
 #include "../includes/Complex.hpp"
 #include <stdexcept>
 #include <cmath>
+#include <algorithm>
 
 Complex::Complex() : _re(0), _im(0) {}
 
@@ -88,6 +89,16 @@ Complex Complex::pow(const Complex &e) const
             base = base * base;
     }
     return result;
+}
+
+Complex	Complex::sqrt() const
+{
+	double	a = _re.value();
+	double	b = _im.value();
+	double	r = std::hypot(a, b);
+	double	re = std::sqrt(std::max(0.0, (r + a) / 2));
+	double	im = std::sqrt(std::max(0.0, (r - a) / 2));
+	return Complex(Rational(re), Rational(b < 0 ? -im : im));
 }
 
 bool    Complex::operator==(const Complex &c) const {   return _re == c.re() && _im == c.im();  }

@@ -1,10 +1,10 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <cctype>
 #include <csignal>
 #include <unistd.h>
 #include "../includes/Computor.hpp"
-#include "../includes/Complex.hpp"
 
 static volatile sig_atomic_t g_interrupted = 0;
 
@@ -17,6 +17,13 @@ static void installSigInt()
       sigemptyset(&sa.sa_mask);
       sa.sa_flags = 0;
       sigaction(SIGINT, &sa, nullptr);
+}
+
+static std::string	lowercase(std::string s)
+{
+	for (size_t k = 0; k < s.size(); k++)
+		s[k] = static_cast<char>(std::tolower(static_cast<unsigned char>(s[k])));
+	return s;
 }
 
 static std::string trim(const std::string &s)
@@ -34,7 +41,6 @@ int main()
 	const bool  interactive = isatty(STDIN_FILENO);
 	Computor    computor;
 	std::string line;
-	Complex		c;
 
 	while (true)
 	{
@@ -49,7 +55,7 @@ int main()
 		line = trim(line);
 		if (line.empty())
 				continue;
-		if (line == "exit" || line == "quit")
+		if (lowercase(line) == "exit" || lowercase(line) == "quit")
 				break;
 		try
 		{
