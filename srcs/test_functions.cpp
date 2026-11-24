@@ -210,7 +210,7 @@ static void errors()
     EXPECT(c, "f(1) = ?",                   "5");
     EXPECT_ERROR(c, "f(x) + f(y) = ?",      "several unknowns");             // only one unknown is supported
     EXPECT_ERROR(c, "x = ?",                "unknown variable 'x'");         // a bare unknown is still an error
-    EXPECT_ERROR(c, "f(x) = y ?",           "not supported yet");            // solving is Sprint 6
+    EXPECT_ERROR(c, "f(x) = y ?",           "several unknowns");            // solving is Sprint 6
 }
 
 static void functionVsVariable()

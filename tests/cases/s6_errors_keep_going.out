@@ -1,0 +1,17 @@
+    Error: the polynomial has degree 3: only degree 2 or less can be solved
+    Error: several unknowns (x, y): only one is supported
+    Error: cannot solve: both sides must be polynomials in 'x'
+    Error: syntax error at column 6: unexpected end of input
+    Error: syntax error at column 3: unexpected character '$'
+    Error: syntax error at column 7: only one '=' is allowed
+    Error: syntax error at column 4: missing value after '='
+    Error: unknown variable 'unknown'
+    Error: syntax error at column 1: 'i' is reserved for the imaginary unit
+    Error: syntax error at column 1: invalid name 'var1' (names contain letters only)
+    Error: division by zero
+  x^2 - 1 = 0
+  Deux solutions sur R :
+  -1
+  1
+  7
+  7
