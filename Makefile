@@ -1,14 +1,23 @@
 NAME = computorv2
 
-SRCS = srcs/test_matrix.cpp srcs/Rational.cpp srcs/Complex.cpp srcs/Computor.cpp \
+SRCS = srcs/main.cpp srcs/Rational.cpp srcs/Complex.cpp srcs/Computor.cpp \
 		srcs/Lexer.cpp srcs/Ast.cpp srcs/Parser.cpp srcs/Value.cpp \
-		srcs/SymbolTable.cpp srcs/Evaluator.cpp srcs/Matrix.cpp
+		srcs/SymbolTable.cpp srcs/Evaluator.cpp srcs/Matrix.cpp srcs/Polynomial.cpp \
+		srcs/Simplifier.cpp
 
 OBJS = ${SRCS:.cpp=.o}
 
 CXX = c++ -std=c++11
 
-CXXFLAGS = -Wall -Werror -Wextra
+WFLAGS = -Wall -Werror -Wextra
+
+CXXFLAGS = ${WFLAGS} -MMD -MP
+
+DEPS = ${OBJS:.o=.d}
+
+LIB_OBJS = $(filter-out srcs/main.o,${OBJS})
+
+UNIT = test test_eval test_matrix test_functions
 
 # ---------- Logo / progress ----------
 define PROGRESS_BAR
@@ -63,15 +72,25 @@ all:	${NAME}
 bonus:	all
 
 clean:
-	@rm -rf ${OBJS}
+	@rm -rf ${OBJS} ${DEPS}
 
 fclean: clean
 	@rm -rf ${NAME}
 
 re: fclean all
 
+# --- Unit tests: builds each srcs/test*.cpp against the sources and runs it ---
+unit: ${LIB_OBJS}
+	@for t in ${UNIT}; do \
+		echo "== $$t"; \
+		${CXX} ${WFLAGS} srcs/$$t.cpp ${LIB_OBJS} -o .unit_$$t || exit 1; \
+		./.unit_$$t || { rm -f .unit_*; exit 1; }; \
+	done; rm -f .unit_*
+
 # --- Debug target ---
 debug: CXXFLAGS += -g -O0
 debug: fclean ${NAME}
 
-.PHONY: all bonus clean fclean re debug
+-include ${DEPS}
+
+.PHONY: all bonus clean fclean re debug unit

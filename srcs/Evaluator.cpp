@@ -1,7 +1,16 @@
 #include "../includes/Evaluator.hpp"
 #include <stdexcept>
 
-Evaluator::Evaluator(const SymbolTable &vars) : _vars(vars)	{}
+Evaluator::Evaluator(const SymbolTable &vars) : _vars(vars), _bound(false)	{}
+
+Evaluator::Evaluator(const SymbolTable &vars, const std::string &param, const Value &arg) : _vars(vars), _param(param), _arg(arg), _bound(true) {}
+
+Value	Evaluator::call(const Function &f, const Value &arg) const
+{
+	if (f.isPolynomial && !arg.isMatrix())
+		return Value(f.poly.evaluate(arg.scalar()));
+	return Evaluator(_vars, f.param, arg).evaluate(f.body);
+}
 
 Value	Evaluator::evaluate(const NodePtr &node) const
 {
@@ -11,8 +20,15 @@ Value	Evaluator::evaluate(const NodePtr &node) const
 			return Value(Complex(static_cast<const NumberNode &>(*node).value));
 		case N_IMAGINARY:
 			return Value(Complex::i());
+		case N_CONSTANT:
+			return static_cast<const ConstantNode &>(*node).value;
 		case N_VARIABLE:
-			return _vars.get(static_cast<const VariableNode &>(*node).name);
+		{
+			const std::string	&name = static_cast<const VariableNode &>(*node).name;
+			if (_bound && name == _param)
+				return _arg;
+			return _vars.get(name);
+		}
 		case N_UNARY:
 			return evaluate(static_cast<const UnaryNode &>(*node).operand).negate();
 		case N_BINARY:
@@ -39,7 +55,11 @@ Value	Evaluator::evaluate(const NodePtr &node) const
 			return Value(Matrix(rows));
 		}
 		case N_CALL:
-			throw std::runtime_error("unknown function '" + static_cast<const CallNode &>(*node).name + "'");
+		{
+			const CallNode	&c = static_cast<const CallNode &>(*node);
+			const Function	&f = _vars.getFunction(c.name);
+			return call(f, evaluate(c.arg));
+		}
 	}
 	throw std::logic_error("unknown node");
 }
