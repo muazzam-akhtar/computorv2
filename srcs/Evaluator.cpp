@@ -1,4 +1,5 @@
 #include "../includes/Evaluator.hpp"
+#include "../includes/Builtins.hpp"
 #include <stdexcept>
 
 Evaluator::Evaluator(const SymbolTable &vars) : _vars(vars), _bound(false)	{}
@@ -57,6 +58,8 @@ Value	Evaluator::evaluate(const NodePtr &node) const
 		case N_CALL:
 		{
 			const CallNode	&c = static_cast<const CallNode &>(*node);
+			if (Builtins::has(c.name))
+				return Builtins::apply(c.name, evaluate(c.arg));
 			const Function	&f = _vars.getFunction(c.name);
 			return call(f, evaluate(c.arg));
 		}

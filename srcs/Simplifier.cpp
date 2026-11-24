@@ -1,8 +1,47 @@
 #include "../includes/Simplifier.hpp"
 #include "../includes/Evaluator.hpp"
+#include "../includes/Builtins.hpp"
 #include <stdexcept>
 
 Simplifier::Simplifier(const SymbolTable &table) : _table(table) {}
+
+static bool	needsResolution(const NodePtr &n)
+{
+	switch (n->kind())
+	{
+		case N_VARIABLE:
+			return true;
+		case N_UNARY:
+			return needsResolution(static_cast<const UnaryNode &>(*n).operand);
+		case N_BINARY:
+			return needsResolution(static_cast<const BinaryNode &>(*n).left) || needsResolution(static_cast<const BinaryNode &>(*n).right);
+		case N_CALL:
+		{
+			const CallNode	&c = static_cast<const CallNode &>(*n);
+			return !Builtins::has(c.name) || needsResolution(c.arg);
+		}
+		case N_MATRIX:
+		{
+			const MatrixNode	&m = static_cast<const MatrixNode &>(*n);
+			for (size_t r = 0; r < m.rows.size(); r++)
+				for (size_t c = 0; c < m.rows[r].size(); c++)
+					if (needsResolution(m.rows[r][c]))
+						return true;
+			return false;
+		}
+		default:
+			return false;
+	}
+}
+
+static NodePtr	makeCall(const std::string &name, const NodePtr &arg)
+{
+	NodePtr	call(new CallNode(name, arg));
+	if (!Builtins::has(name) || needsResolution(arg))
+		return call;
+	static const SymbolTable	nothing;
+	return NodePtr(new ConstantNode(Evaluator(nothing).evaluate(call)));
+}
 
 NodePtr	Simplifier::replace(const NodePtr &n, const std::string &name, const NodePtr &with)
 {
@@ -36,7 +75,7 @@ NodePtr	Simplifier::replace(const NodePtr &n, const std::string &name, const Nod
 		case N_CALL:
 		{
 			const CallNode	&c = static_cast<const CallNode &>(*n);
-			return NodePtr(new CallNode(c.name, replace(c.arg, name, with)));
+			return makeCall(c.name, replace(c.arg, name, with));
 		}
 	}
 	throw std::logic_error("unknown node");
@@ -170,6 +209,8 @@ NodePtr	Simplifier::substitute(const NodePtr &n, const std::string &keep) const
 		case N_CALL:
 		{
 			const CallNode	&c = static_cast<const CallNode &>(*n);
+			if (Builtins::has(c.name))
+				return makeCall(c.name, substitute(c.arg, keep));
 			const Function	&f = _table.getFunction(c.name);
 			return replace(f.body, f.param, substitute(c.arg, keep));
 		}

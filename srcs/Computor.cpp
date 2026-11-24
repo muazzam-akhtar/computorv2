@@ -2,7 +2,11 @@
 #include "../includes/Evaluator.hpp"
 #include "../includes/Simplifier.hpp"
 #include "../includes/Solver.hpp"
+#include "../includes/Builtins.hpp"
+#include <cctype>
 #include <stdexcept>
+#include <sstream>
+#include <map>
 
 static std::string	listNames(const std::set<std::string> &names)
 {
@@ -10,6 +14,29 @@ static std::string	listNames(const std::set<std::string> &names)
 	for (std::set<std::string>::const_iterator	it = names.begin(); it != names.end(); ++it)
 		list += (list.empty() ? "" : ", ") + *it;
 	return list;
+}
+
+static void	checkNotReserved(const std::string &name)
+{
+	if (Builtins::has(name))
+		throw std::runtime_error("'" + name + "' is a built-in function and cannot be redefined");
+	if (name == "vars" || name == "history")
+		throw std::runtime_error("'" + name + "' is a command and cannot be used as a name");
+}
+
+static std::string	trimmed(const std::string &s)
+{
+	size_t	b = s.find_first_not_of(" \t\r\n");
+	if (b == std::string::npos)
+		return "";
+	return s.substr(b, s.find_last_not_of(" \t\r\n") - b + 1);
+}
+
+static std::string	lowered(std::string s)
+{
+	for (size_t k = 0; k < s.size(); k++)
+		s[k] = static_cast<char>(std::tolower(static_cast<unsigned char>(s[k])));
+	return s;
 }
 
 std::string	Computor::show(const NodePtr &expr) const
@@ -89,7 +116,47 @@ std::string	Computor::solve(const NodePtr &lhs, const NodePtr &rhs) const
 	return out;
 }
 
+std::string	Computor::listVariables() const
+{
+	std::string	out;
+	const std::map<std::string, Value>	&vars = _vars.all();
+	const std::map<std::string, Function>	&funcs = _vars.functions();
+
+	for (std::map<std::string, Value>::const_iterator it = vars.begin(); it != vars.end(); ++it)
+		out += (out.empty() ? "" : "\n") + it->first + " = " + (it->second.isMatrix() ? it->second.matrix().toInlineString() : it->second.toString());
+	for (std::map<std::string, Function>::const_iterator it = funcs.begin(); it != funcs.end(); ++it)
+		out += (out.empty() ? "" : "\n") + it->first + "(" + it->second.param + ") = " + it->second.toString();
+	return out.empty() ? "No variable or function stored yet" : out;
+}
+
+std::string	Computor::listHistory() const
+{
+	if (_history.empty())
+		return "History is empty";
+	std::string	out;
+	for (size_t k = 0; k < _history.size(); ++k)
+	{
+		std::ostringstream	num;
+		num << (k + 1) << ". ";
+		out += (k ? "\n" : "") + num.str() + _history[k].first + "\n" + indent(_history[k].second);
+	}
+	return out;
+}
+
 std::string Computor::process(const std::string &line)
+{
+	const std::string	cmd = lowered(trimmed(line));
+
+	if (cmd == "vars")
+		return indent(listVariables());
+	if (cmd == "history")
+		return indent(listHistory());
+	std::string	result = run(line);
+	_history.push_back(std::make_pair(trimmed(line), result));
+	return result;
+}
+
+std::string	Computor::run(const std::string &line)
 {
 	Statement	s = Parser::parseStatement(line);
 	Evaluator	eval(_vars);
@@ -101,12 +168,14 @@ std::string Computor::process(const std::string &line)
 			return indent(show(s.lhs));
 		case S_ASSIGN_VAR:
 		{
+			checkNotReserved(s.name);
 			Value	v = eval.evaluate(s.rhs);
 			_vars.set(s.name, v);
 			return indent(v.toString());
 		}
 		case S_ASSIGN_FUNC:
 		{
+			checkNotReserved(s.name);
 			Function	f = Simplifier(_vars).define(s.param, s.rhs);
 			_vars.setFunction(s.name, f);
 			return indent(f.toString());
