@@ -9,7 +9,15 @@ OBJS = ${SRCS:.cpp=.o}
 
 CXX = c++ -std=c++11
 
-CXXFLAGS = -Wall -Werror -Wextra
+WFLAGS = -Wall -Werror -Wextra
+
+CXXFLAGS = ${WFLAGS} -MMD -MP
+
+DEPS = ${OBJS:.o=.d}
+
+LIB_OBJS = $(filter-out srcs/main.o,${OBJS})
+
+UNIT = test test_eval test_matrix test_functions
 
 # ---------- Logo / progress ----------
 define PROGRESS_BAR
@@ -64,13 +72,14 @@ all:	${NAME}
 bonus:	all
 
 clean:
-	@rm -rf ${OBJS}
+	@rm -rf ${OBJS} ${DEPS}
 
 fclean: clean
 	@rm -rf ${NAME}
 
 re: fclean all
 
+# --- Unit tests: builds each srcs/test*.cpp against the sources and runs it ---
 unit: ${LIB_OBJS}
 	@for t in ${UNIT}; do \
 		echo "== $$t"; \
@@ -82,4 +91,6 @@ unit: ${LIB_OBJS}
 debug: CXXFLAGS += -g -O0
 debug: fclean ${NAME}
 
-.PHONY: all bonus clean fclean re debug
+-include ${DEPS}
+
+.PHONY: all bonus clean fclean re debug unit
