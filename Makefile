@@ -1,6 +1,6 @@
 NAME = computorv2
 
-SRCS = srcs/test_matrix.cpp srcs/Rational.cpp srcs/Complex.cpp srcs/Computor.cpp \
+SRCS = srcs/main.cpp srcs/Rational.cpp srcs/Complex.cpp srcs/Computor.cpp \
 		srcs/Lexer.cpp srcs/Ast.cpp srcs/Parser.cpp srcs/Value.cpp \
 		srcs/SymbolTable.cpp srcs/Evaluator.cpp srcs/Matrix.cpp srcs/Polynomial.cpp \
 		srcs/Simplifier.cpp
@@ -70,6 +70,13 @@ fclean: clean
 	@rm -rf ${NAME}
 
 re: fclean all
+
+unit: ${LIB_OBJS}
+	@for t in ${UNIT}; do \
+		echo "== $$t"; \
+		${CXX} ${WFLAGS} srcs/$$t.cpp ${LIB_OBJS} -o .unit_$$t || exit 1; \
+		./.unit_$$t || { rm -f .unit_*; exit 1; }; \
+	done; rm -f .unit_*
 
 # --- Debug target ---
 debug: CXXFLAGS += -g -O0
