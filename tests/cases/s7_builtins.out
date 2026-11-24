@@ -1,0 +1,26 @@
+  4
+  1.414213562
+  2i
+  2 + i
+  5
+  5
+  1
+  2.718281828
+  0
+  1
+  0
+  0.841470985
+    Error: cos is only defined for real numbers (got a complex number)
+    Error: sin is only defined for real numbers (got a complex number)
+  sqrt(m)
+  sqrt(x) + 1
+  4
+  sqrt(x) + 1
+  x + 2
+  x^2 + 3
+  x + 3
+  sqrt(x)
+    Error: cannot solve: both sides must be polynomials in 'x'
+    Error: 'sqrt' is a built-in function and cannot be redefined
+    Error: 'abs' is a built-in function and cannot be redefined
+    Error: syntax error at column 7: expected ')' to close the call to sqrt but found ','
