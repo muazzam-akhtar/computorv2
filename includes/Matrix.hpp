@@ -26,6 +26,9 @@ class Matrix
 		Matrix					operator/(const Complex &) const;
 		Matrix					multiply(const Matrix &) const;
 		Matrix					pow(const Complex &) const;
+		Matrix					transpose() const;
+		Complex					determinant() const;
+		Matrix					inverse() const;
 
 		bool					operator==(const Matrix &) const;
 		std::string				toString() const;

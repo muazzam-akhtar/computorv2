@@ -153,6 +153,102 @@ Matrix	Matrix::pow(const Complex &e) const
 	return result;
 }
 
+Matrix	Matrix::transpose() const
+{
+	Matrix	t(_cols, _rows);
+	for (size_t r = 0; r < _rows; r++)
+		for (size_t c = 0; c < _cols; c++)
+			t.at(c, r) = at(r, c);
+	return t;
+}
+
+static double	magnitude(const Complex &c) {	return std::hypot(c.re().value(), c.im().value());	}
+
+static size_t	pivotRow(const Matrix &m, size_t col, size_t from)
+{
+	size_t	best = from;
+	for (size_t r = from + 1; r < m.rows(); r++)
+		if (magnitude(m.at(r, col)) > magnitude(m.at(best, col)))
+			best = r;
+	return best;
+}
+
+static void	swapRows(Matrix &m, size_t a, size_t b)
+{
+	for (size_t c = 0; c < m.cols(); c++)
+	{
+		Complex	tmp = m.at(a, c);
+		m.at(a, c) = m.at(b, c);
+		m.at(b, c) = tmp;
+	}
+}
+
+Complex	Matrix::determinant() const
+{
+	if (!isSquare())
+		throw std::runtime_error("only a square matrix has a determinant (this one is " + sizeString() + ")");
+	Matrix	a(*this);
+	Complex	det(1);
+	for (size_t col = 0; col < _rows; col++)
+	{
+		size_t	p = pivotRow(a, col, col);
+		if (a.at(p, col).isZero())
+			return Complex(0);
+		if (p != col)
+		{
+			swapRows(a, p, col);
+			det = -det;
+		}
+		det = det * a.at(col, col);
+		for (size_t r = col + 1; r < _rows; r++)
+		{
+			Complex	f = a.at(r, col) / a.at(col, col);
+			for (size_t c = col; c < _cols; c++)
+				a.at(r, c) = a.at(r, c) - f * a.at(col, c);
+		}
+	}
+	return det;
+}
+
+Matrix	Matrix::inverse() const
+{
+	if (!isSquare())
+		throw std::runtime_error("only a square matrix can be inverted (this one is " + sizeString() + ")");
+	Matrix	a(*this);
+	Matrix	inv = identity(_rows);
+	for (size_t col = 0; col < _rows; col++)
+	{
+		size_t	p = pivotRow(a, col, col);
+		if (a.at(p, col).isZero())
+			throw std::runtime_error("this matrix is singular (determinant 0): it has no inverse");
+		if (p != col)
+		{
+			swapRows(a, p, col);
+			swapRows(inv, p, col);
+		}
+		Complex	pivot = a.at(col, col);
+		for (size_t c = 0; c < _cols; c++)
+		{
+			a.at(col, c) = a.at(col, c) / pivot;
+			inv.at(col, c) = inv.at(col, c) / pivot;
+		}
+		for (size_t r = 0; r < _rows; r++)
+		{
+			if (r == col)
+				continue;
+			Complex	f = a.at(r, col);
+			if (f.isZero())
+				continue;
+			for (size_t c = 0; c < _cols; c++)
+			{
+				a.at(r, c) = a.at(r, c) - f * a.at(col, c);
+				inv.at(r, c) = inv.at(r, c) - f * inv.at(col, c);
+			}
+		}
+	}
+	return inv;
+}
+
 bool	Matrix::operator==(const Matrix &o) const
 {
 	if (_rows != o._rows || _cols != o._cols)
