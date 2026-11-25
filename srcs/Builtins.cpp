@@ -74,12 +74,12 @@ Value	Builtins::apply(const std::string &name, const Value &arg)
 		return absolute(arg);
 	if (name == "norm")
 		return norm(arg);
-	// if (name == "inv")
-	// 	return Value(arg.matrix().inverse());
-	// if (name == "det")
-	// 	return Value(arg.matrix().determinant());
-	// if (name == "transpose")
-	// 	return Value(arg.matrix().transpose());
+	if (name == "inv")
+		return Value(arg.matrix().inverse());
+	if (name == "det")
+		return Value(arg.matrix().determinant());
+	if (name == "transpose")
+		return Value(arg.matrix().transpose());
 	if (arg.isMatrix())
 		throw std::runtime_error(name + " needs a number, not a matrix");
 	if (name == "sqrt")
