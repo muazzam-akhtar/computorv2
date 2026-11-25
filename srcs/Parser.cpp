@@ -182,6 +182,8 @@ NodePtr	Parser::primary()
 				expect(T_RPAREN, "')' to close the call to " + name);
 				return NodePtr(new CallNode(name, arg));
 			}
+			if (name == "pi")
+				return NodePtr(new ConstantNode(Value(Complex(Rational(M_PI)))));
 			return NodePtr(new VariableNode(name));
 		}
 		case T_LPAREN:

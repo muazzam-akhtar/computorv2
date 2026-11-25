@@ -2,7 +2,7 @@
 #include <cmath>
 #include <stdexcept>
 
-static const char	*NAMES[] = {	"abs", "sqrt", "exp", "sin", "cos", "tan", "norm", "inv", "det", "transpose"	};
+static const char	*NAMES[] = {	"abs", "sqrt", "exp", "sin", "cos", "tan", "asin", "acos", "atan", "norm", "inv", "det", "transpose"	};
 
 static const size_t	COUNT = sizeof(NAMES) / sizeof(NAMES[0]);
 
@@ -25,7 +25,7 @@ static Rational	checkedNumber(double v)
 
 static double	modulus(const Complex &c)	{	return std::hypot(c.re().value(), c.im().value());	}
 
-static const Complex	&readOnly(const std::string &name, const Value &v)
+static const Complex	&realOnly(const std::string &name, const Value &v)
 {
 	const Complex	&c = v.scalar();
 	if (!c.isReal())
@@ -74,12 +74,12 @@ Value	Builtins::apply(const std::string &name, const Value &arg)
 		return absolute(arg);
 	if (name == "norm")
 		return norm(arg);
-	// if (name == "inv")
-	// 	return Value(arg.matrix().inverse());
-	// if (name == "det")
-	// 	return Value(arg.matrix().determinant());
-	// if (name == "transpose")
-	// 	return Value(arg.matrix().transpose());
+	if (name == "inv")
+		return Value(arg.matrix().inverse());
+	if (name == "det")
+		return Value(arg.matrix().determinant());
+	if (name == "transpose")
+		return Value(arg.matrix().transpose());
 	if (arg.isMatrix())
 		throw std::runtime_error(name + " needs a number, not a matrix");
 	if (name == "sqrt")
@@ -87,10 +87,16 @@ Value	Builtins::apply(const std::string &name, const Value &arg)
 	if (name == "exp")
 		return exponential(arg);
 	if (name == "sin")
-		return Value(Complex(checkedNumber(std::sin(readOnly(name, arg).re().value()))));
+		return Value(Complex(checkedNumber(std::sin(realOnly(name, arg).re().value()))));
 	if (name == "cos")
-		return Value(Complex(checkedNumber(std::cos(readOnly(name, arg).re().value()))));
+		return Value(Complex(checkedNumber(std::cos(realOnly(name, arg).re().value()))));
 	if (name == "tan")
-		return Value(Complex(checkedNumber(std::tan(readOnly(name, arg).re().value()))));
+		return Value(Complex(checkedNumber(std::tan(realOnly(name, arg).re().value()))));
+	if (name == "asin")
+		return Value(Complex(checkedNumber(std::asin(realOnly(name, arg).re().value()))));
+	if (name == "acos")
+		return Value(Complex(checkedNumber(std::acos(realOnly(name, arg).re().value()))));
+	if (name == "atan")
+		return Value(Complex(checkedNumber(std::atan(realOnly(name, arg).re().value()))));
 	throw std::logic_error("unknown built-in function " + name);
 }

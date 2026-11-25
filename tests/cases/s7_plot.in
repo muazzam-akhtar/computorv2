@@ -1,0 +1,19 @@
+f(x) = x^2 - 4
+plot f
+PLOT F -3 3
+c(x) = 3
+plot c
+h(x) = 1 / x
+plot h -5 5
+k(x) = sqrt(x)
+plot k 0 4
+plot nope
+a = 2
+plot a
+plot f 5 1
+plot f 1
+plot f a b
+plot f 1 2 3
+plot
+plot = 3
+history

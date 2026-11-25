@@ -3,9 +3,12 @@
 #include "../includes/Simplifier.hpp"
 #include "../includes/Solver.hpp"
 #include "../includes/Builtins.hpp"
+#include "../includes/Plotter.hpp"
 #include <cctype>
+#include <cmath>
 #include <stdexcept>
 #include <sstream>
+#include <cstdlib>
 #include <map>
 
 static std::string	listNames(const std::set<std::string> &names)
@@ -20,7 +23,7 @@ static void	checkNotReserved(const std::string &name)
 {
 	if (Builtins::has(name))
 		throw std::runtime_error("'" + name + "' is a built-in function and cannot be redefined");
-	if (name == "vars" || name == "history")
+	if (name == "vars" || name == "history" || name == "plot")
 		throw std::runtime_error("'" + name + "' is a command and cannot be used as a name");
 }
 
@@ -52,9 +55,9 @@ std::string	Computor::show(const NodePtr &expr) const
 			return name + "(" + f.param + ") = " + f.toString();
 		}
 	}
-	if (Simplifier::containsCall(expr))
+	std::set<std::string>	unknowns = simp.freeVariables(expr);
+	if (Simplifier::containsCall(expr) || (unknowns.size() == 1 && expr->kind() != N_VARIABLE))
 	{
-		std::set<std::string>	unknowns = simp.freeVariables(expr);
 		if (unknowns.size() > 1)
 		{
 			std::string	list;
@@ -66,8 +69,9 @@ std::string	Computor::show(const NodePtr &expr) const
 		{
 			const std::string	x = *unknowns.begin();
 			Polynomial			p;
-			if (!simp.toPolynomial(simp.substitute(expr, x), x, p))
-				throw std::runtime_error("cannot simplify this expression with the unknown '" + x + "'");
+			NodePtr				inlined = simp.substitute(expr, x);
+			if (!simp.toPolynomial(inlined, x, p))
+				return inlined->toString();
 			return p.toString(x);
 		}
 	}
@@ -143,6 +147,34 @@ std::string	Computor::listHistory() const
 	return out;
 }
 
+static double	parseBound(const std::string &text)
+{
+	char	*end = 0;
+	double	v = std::strtod(text.c_str(), &end);
+	if (text.empty() || *end != '\0' || v!= v || std::fabs(v) > 1e6)
+		throw std::runtime_error("'" + text + "' is not a valid range bound (use plain numbers, e.g. plot f -5 5)");
+	return v;
+}
+
+std::string	Computor::plot(const std::string &args) const
+{
+	std::istringstream	in(args);
+	std::string			name, a, b, extra;
+	double				lo = -10, hi = 10;
+
+	in >> name >> a >> b >> extra;
+	if (name.empty() || (!a.empty() && b.empty()) || !extra.empty())
+		throw std::runtime_error("usage: plot <function> [min max]");
+	if (!a.empty())
+	{
+		lo = parseBound(a);
+		hi = parseBound(b);
+	}
+	if (lo >= hi)
+		throw std::runtime_error("the range must satisfy min < max");
+	return Plotter::plot(Evaluator(_vars), _vars.getFunction(lowered(name)), lo, hi);
+}
+
 std::string Computor::process(const std::string &line)
 {
 	const std::string	cmd = lowered(trimmed(line));
@@ -151,6 +183,12 @@ std::string Computor::process(const std::string &line)
 		return indent(listVariables());
 	if (cmd == "history")
 		return indent(listHistory());
+	if ((cmd == "plot" || cmd.compare(0, 5, "plot ") == 0) && cmd.find('=') == std::string::npos)
+	{
+		std::string	drawn = indent(plot(cmd.substr(4)));
+		_history.push_back(std::make_pair(trimmed(line), drawn));
+		return drawn;
+	}
 	std::string	result = run(line);
 	_history.push_back(std::make_pair(trimmed(line), result));
 	return result;

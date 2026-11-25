@@ -16,6 +16,7 @@ class Computor
 		std::string											run(const std::string &);
 		std::string											listVariables() const;
 		std::string											listHistory() const;
+		std::string											plot(const std::string &) const;
 		std::string											show(const NodePtr &) const;
 		std::string											solve(const NodePtr &, const NodePtr &) const;
 		static std::string									indent(const std::string &text);
