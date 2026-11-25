@@ -1,0 +1,19 @@
+  x + 1 = 0
+  Une solution sur R :
+  -1
+  x^2 + 2 * x + 1 = 0
+  Une solution sur R :
+  -1
+  x^2 - 4 = 0
+  Deux solutions sur R :
+  -2
+  2
+  x^2 + 1 = 0
+  Deux solutions sur C :
+  -i
+  i
+  true
+  0 = 0
+  Any number is a solution
+  false
+    Error: the polynomial has degree 3: only degree 2 or less can be solved
