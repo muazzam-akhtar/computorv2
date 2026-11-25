@@ -2,3 +2,7 @@
 */.DS_Store
 .vscode
 .vscode/*
+claude
+*/*.o
+*/*.d
+computorv2
