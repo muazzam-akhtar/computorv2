@@ -1,5 +1,6 @@
 #include "../includes/Parser.hpp"
 #include "../includes/Lexer.hpp"
+#include <cmath>
 
 std::string	Statement::describe() const
 {
