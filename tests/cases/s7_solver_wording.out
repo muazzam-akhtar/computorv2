@@ -1,15 +1,15 @@
   x + 1 = 0
-  Une solution sur R :
+  A solution: R :
   -1
   x^2 + 2 * x + 1 = 0
-  Une solution sur R :
+  A solution: R :
   -1
   x^2 - 4 = 0
-  Deux solutions sur R :
+  Two solutions: R :
   -2
   2
   x^2 + 1 = 0
-  Deux solutions sur C :
+  Two solutions: C :
   -i
   i
   true

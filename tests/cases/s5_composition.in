@@ -1,0 +1,8 @@
+funA(x) = 2*x+1
+funB(x) = 2 * x+1
+funA(funB(x)) = ?
+funA(x + 1) = ?
+funA = ?
+g(x) = funA(x) * funB(x)
+g(2) = ?
+g(x) = ?
