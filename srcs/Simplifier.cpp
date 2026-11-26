@@ -18,7 +18,7 @@ static bool	needsResolution(const NodePtr &n)
 		case N_CALL:
 		{
 			const CallNode	&c = static_cast<const CallNode &>(*n);
-			return !Builtins::has(c.name) || needsResolution(c.arg);
+			return !Builtins::has(c.name) || needsResolution(c.arg) || (c.arg2 && needsResolution(c.arg2));
 		}
 		case N_MATRIX:
 		{
@@ -34,10 +34,10 @@ static bool	needsResolution(const NodePtr &n)
 	}
 }
 
-static NodePtr	makeCall(const std::string &name, const NodePtr &arg)
+static NodePtr	makeCall(const std::string &name, const NodePtr &arg, const NodePtr &arg2 = NodePtr())
 {
-	NodePtr	call(new CallNode(name, arg));
-	if (!Builtins::has(name) || needsResolution(arg))
+	NodePtr	call(new CallNode(name, arg, arg2));
+	if (!Builtins::has(name) || needsResolution(arg) || (arg2 && needsResolution(arg2)))
 		return call;
 	static const SymbolTable	nothing;
 	return NodePtr(new ConstantNode(Evaluator(nothing).evaluate(call)));
@@ -75,7 +75,7 @@ NodePtr	Simplifier::replace(const NodePtr &n, const std::string &name, const Nod
 		case N_CALL:
 		{
 			const CallNode	&c = static_cast<const CallNode &>(*n);
-			return makeCall(c.name, replace(c.arg, name, with));
+			return makeCall(c.name, replace(c.arg, name, with), c.arg2 ? replace(c.arg2, name, with) : NodePtr());
 		}
 	}
 	throw std::logic_error("unknown node");
@@ -92,7 +92,7 @@ bool	Simplifier::mentions(const NodePtr &n, const std::string &name)
 		case N_BINARY:
 			return mentions(static_cast<const BinaryNode &>(*n).left, name) || mentions(static_cast<const BinaryNode &>(*n).right, name);
 		case N_CALL:
-			return mentions(static_cast<const CallNode &>(*n).arg, name);
+			return mentions(static_cast<const CallNode &>(*n).arg, name) || (static_cast<const CallNode &>(*n).arg2 && mentions(static_cast<const CallNode &>(*n).arg2, name));
 		case N_MATRIX:
 		{
 			const MatrixNode	&m = static_cast<const MatrixNode &>(*n);
@@ -151,6 +151,8 @@ static void	collectNames(const NodePtr &n, const SymbolTable &t, std::set<std::s
 			return ;
 		case N_CALL:
 			collectNames(static_cast<const CallNode &>(*n).arg, t, out);
+			if (static_cast<const CallNode &>(*n).arg2)
+				collectNames(static_cast<const CallNode &>(*n).arg2, t, out);
 			return ;
 		case N_MATRIX:
 		{
@@ -210,7 +212,7 @@ NodePtr	Simplifier::substitute(const NodePtr &n, const std::string &keep) const
 		{
 			const CallNode	&c = static_cast<const CallNode &>(*n);
 			if (Builtins::has(c.name))
-				return makeCall(c.name, substitute(c.arg, keep));
+				return makeCall(c.name, substitute(c.arg, keep), c.arg2 ? substitute(c.arg2, keep) : NodePtr());
 			const Function	&f = _table.getFunction(c.name);
 			return replace(f.body, f.param, substitute(c.arg, keep));
 		}

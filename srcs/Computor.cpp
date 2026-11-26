@@ -55,9 +55,9 @@ std::string	Computor::show(const NodePtr &expr) const
 			return name + "(" + f.param + ") = " + f.toString();
 		}
 	}
-	std::set<std::string>	unknowns = simp.freeVariables(expr);
-	if (Simplifier::containsCall(expr) || (unknowns.size() == 1 && expr->kind() != N_VARIABLE))
+	if (Simplifier::containsCall(expr))
 	{
+		std::set<std::string>	unknowns = simp.freeVariables(expr);
 		if (unknowns.size() > 1)
 		{
 			std::string	list;
@@ -156,23 +156,46 @@ static double	parseBound(const std::string &text)
 	return v;
 }
 
+static const char	*PLOT_USAGE = "usage: plot(f) or plot(f, min, max)	(also: plot f, plot f min max)";
+
 std::string	Computor::plot(const std::string &args) const
 {
-	std::istringstream	in(args);
-	std::string			name, a, b, extra;
-	double				lo = -10, hi = 10;
+	std::vector<std::string>	parts;
+	const std::string			text = trimmed(args);
+	double						lo = -10, hi = 10;
 
-	in >> name >> a >> b >> extra;
-	if (name.empty() || (!a.empty() && b.empty()) || !extra.empty())
-		throw std::runtime_error("usage: plot <function> [min max]");
-	if (!a.empty())
+	if (!text.empty() && text[0] == '(')
 	{
-		lo = parseBound(a);
-		hi = parseBound(b);
+		if (text[text.size() - 1] != ')')
+			throw std::runtime_error(PLOT_USAGE);
+		const std::string	inner = text.substr(1, text.size() - 2);
+		std::istringstream	in(inner);
+		std::string			piece;
+		while (std::getline(in, piece, ','))
+			parts.push_back(trimmed(piece));
+		if (!inner.empty() && inner[inner.size() - 1] == ',')
+			parts.push_back("");
+	}
+	else
+	{
+		std::istringstream	in(text);
+		std::string			piece;
+		while (in >> piece)
+			parts.push_back(piece);
+	}
+	if (parts.size() != 1 && parts.size() != 3)
+		throw std::runtime_error(PLOT_USAGE);
+	for (size_t k = 0; k < parts.size(); k++)
+		if (parts[k].empty() || (k == 0 && parts[k].find_first_of(" \t") != std::string::npos))
+			throw std::runtime_error(PLOT_USAGE);
+	if (parts.size() == 3)
+	{
+		lo = parseBound(parts[1]);
+		hi = parseBound(parts[2]);
 	}
 	if (lo >= hi)
 		throw std::runtime_error("the range must satisfy min < max");
-	return Plotter::plot(Evaluator(_vars), _vars.getFunction(lowered(name)), lo, hi);
+	return Plotter::plot(Evaluator(_vars), _vars.getFunction(lowered(parts[0])), lo, hi);
 }
 
 std::string Computor::process(const std::string &line)
@@ -183,7 +206,7 @@ std::string Computor::process(const std::string &line)
 		return indent(listVariables());
 	if (cmd == "history")
 		return indent(listHistory());
-	if ((cmd == "plot" || cmd.compare(0, 5, "plot ") == 0) && cmd.find('=') == std::string::npos)
+	if ((cmd == "plot" || cmd.compare(0, 5, "plot ") == 0 || cmd.compare(0, 5, "plot(") == 0) && cmd.find('=') == std::string::npos)
 	{
 		std::string	drawn = indent(plot(cmd.substr(4)));
 		_history.push_back(std::make_pair(trimmed(line), drawn));
