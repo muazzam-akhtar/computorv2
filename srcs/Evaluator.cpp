@@ -59,7 +59,7 @@ Value	Evaluator::evaluate(const NodePtr &node) const
 		{
 			const CallNode	&c = static_cast<const CallNode &>(*node);
 			if (Builtins::has(c.name))
-				return Builtins::apply(c.name, evaluate(c.arg));
+				return c.arg2 ? Builtins::apply(c.name, evaluate(c.arg), evaluate(c.arg2)) : Builtins::apply(c.name, evaluate(c.arg));
 			const Function	&f = _vars.getFunction(c.name);
 			return call(f, evaluate(c.arg));
 		}
