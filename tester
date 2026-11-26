@@ -1,0 +1,388 @@
+################ 1. ASSIGNMENT: RATIONALS ################
+> varA = 2
+  2
+> varB = 4.242
+  4.242
+> varC = -4.3
+  -4.3
+> varA = ?
+  2
+
+################ 2. ASSIGNMENT: COMPLEX ################
+> varA = 2*i + 3
+  3 + 2i
+> varB = -4i - 4
+  -4 - 4i
+> varA + varB = ?
+  -1 - 2i
+> varA * varB = ?
+  -4 - 20i
+> i * i = ?
+  -1
+> (1+i)^2 = ?
+  2i
+> (1+i)^3 = ?
+  -2 + 2i
+> (2+3i) / (1+i) = ?
+  2.5 + 0.5i
+> c = 3 + 0i
+  3
+> d = 0 + 2i
+  2i
+
+################ 3. ASSIGNMENT: MATRICES ################
+> varA = [[2,3];[4,3]]
+  [ 2 , 3 ]
+  [ 4 , 3 ]
+> varB = [[3,4]]
+  [ 3 , 4 ]
+> matA = [[1,2];[3,2];[3,4]]
+  [ 1 , 2 ]
+  [ 3 , 2 ]
+  [ 3 , 4 ]
+> matB=   [[1,2]]
+  [ 1 , 2 ]
+> col = [[1];[2];[3]]
+  [ 1 ]
+  [ 2 ]
+  [ 3 ]
+
+################ 4. ASSIGNMENT: FUNCTIONS ################
+> funA(x) = 2*x^5 + 4x^2 - 5*x + 4
+  2 * x^5 + 4 * x^2 - 5 * x + 4
+> funC(z) = -2 * z - 5
+  -2 * z - 5
+> funD(x)    =    2 *x
+  2 * x
+> funB(y) = 43 * y / (4 % 2 * y)
+  43 * y / (4 % 2 * y)
+> funB(2) = ?
+  Error: division by zero
+
+################ 5. REASSIGNMENT / TYPE CHANGE ################
+> x = 2
+  2
+> y = x
+  2
+> y = 7
+  7
+> y = 2 * i - 4
+  -4 + 2i
+> y = [[1,2]]
+  [ 1 , 2 ]
+> y = 5
+  5
+
+################ 6. COMPUTATION STORED IN VARIABLES ################
+> varA = 2 + 4 *2 - 5 %4 + 2 * (4 + 5)
+  27
+> varB = 2 * varA - 5 %4
+  53
+> funA(x) = varA + varB * 4 - 1 / 2 + x
+  238.5 + x
+> varC = 2 * varA - varB
+  1
+> varD = funA(varC)
+  239.5
+
+################ 7. OPERATORS / PRIORITIES ################
+> a = 2 * 4 + 4
+  12
+> a + 2 = ?
+  14
+> 2 + 3 * 4 = ?
+  14
+> (2 + 3) * 4 = ?
+  20
+> 10 % 3 = ?
+  1
+> 2 ^ 0 = ?
+  1
+> 2 ^ 10 = ?
+  1024
+> 0.1 + 0.2 = ?
+  0.3
+> 1/3 + 1/3 + 1/3 = ?
+  1
+> 4 - -3 = ?
+  7
+> 2 * -3 = ?
+  -6
+> 2 * 5 = ?
+  10
+
+################ 8. SYNTAX / SPACING ################
+> varA = 2
+  2
+> varB= 2 * (4 + varA + 3)
+  18
+> varC =2 * varB
+  36
+> varD    =     2 *(2 + 4 *varC -4 /3)
+  289.333333333
+> xx = 3
+  3
+> 2 * xx = ?
+  6
+
+################ 9. CASE INSENSITIVITY ################
+> varA = 5
+  5
+> vara = ?
+  5
+> VARA + 1 = ?
+  6
+> VarA = 9
+  9
+> vara = ?
+  9
+> funZ(x) = x + 1
+  x + 1
+> FUNZ(2) = ?
+  3
+
+################ 10. MATRIX OPERATIONS ################
+> matA = [[1,2];[3,4]]
+  [ 1 , 2 ]
+  [ 3 , 4 ]
+> matB = [[5,6];[7,8]]
+  [ 5 , 6 ]
+  [ 7 , 8 ]
+> matA + matB = ?
+  [ 6 , 8 ]
+  [ 10 , 12 ]
+> matB - matA = ?
+  [ 4 , 4 ]
+  [ 4 , 4 ]
+> matA * matB = ?
+  [ 5 , 12 ]
+  [ 21 , 32 ]
+> matA ** matB = ?
+  [ 19 , 22 ]
+  [ 43 , 50 ]
+> 2 * matA = ?
+  [ 2 , 4 ]
+  [ 6 , 8 ]
+> matA / 2 = ?
+  [ 0.5 , 1 ]
+  [ 1.5 , 2 ]
+> m = [[1,2];[3,4]] ** [[1];[2]]
+  [ 5 ]
+  [ 11 ]
+> [[1,2,3]] ** [[1];[2];[3]] = ?
+  [ 14 ]
+> [[1,2];[3,2];[3,4]] ** [[1,2]] = ?
+  Error: incompatible matrix dimensions
+> [[1,2]] + [[1,2,3]] = ?
+  Error: incompatible matrix dimensions
+> [[1,2];[3]]
+  Error: malformed matrix (rows of different length)
+
+################ 11. FUNCTION IMAGE COMPUTATION ################
+> funA(x) = 2 * 4 + x
+  8 + x
+> funB(x) = 4 -5 + (x + 2)^2 - 4
+  (x + 2)^2 - 5
+> funC(x) = 4x + 5 - 2
+  4 * x + 3
+> funA(2) + funB(4) = ?
+  41
+> funC(3) = ?
+  15
+> funC(i) = ?
+  3 + 4i
+> funD(x) = 2 * x
+  2 * x
+> funD([[1,2]]) = ?
+  [ 2 , 4 ]
+> funE(x) = x * x
+  x * x
+> funE(1 + i) = ?
+  2i
+
+################ 12. SIMPLIFICATION ################
+> funF(x) = (x^2 + 3x + 2) / (x + 1)
+  x + 2
+> funG(y) = 2* y + 4 -2 * 4+1/3
+  2 * y - 3.666666667       (subject example shows "2 * y + 4 - 8 + 0.333333..."; either accepted)
+> funH(x) = 2 * 5
+  10
+
+################ 13. EQUATIONS (DEGREE <= 2) ################
+> funA(x) = x^2 + 2x + 1	Failed
+  x^2 + 2x + 1
+> y = 0
+  0
+> funA(x) = y ?
+  x^2 + 2x + 1 = 0
+  Une solution sur R :
+  -1
+> funQ(x) = x^2 - 3x + 2
+  x^2 - 3x + 2
+> funQ(x) = 0 ?
+  x^2 - 3x + 2 = 0
+  Two solutions on R:
+  1
+  2
+> funQ(x) = 2 ?
+  x^2 - 3x + 2 = 2
+  Two solutions on R:
+  0
+  3
+> funL(x) = 2x + 4
+  2 * x + 4
+> funL(x) = 0 ?
+  2 * x + 4 = 0
+  One solution on R:
+  -2
+> funP(x) = x^2 + 1
+  x^2 + 1
+> funP(x) = 0 ?
+  x^2 + 1 = 0
+  Two solutions on C:
+  -i
+  i
+> funR(x) = x^2 + 2x + 5
+  x^2 + 2x + 5
+> funR(x) = 0 ?
+  x^2 + 2x + 5 = 0
+  Two solutions on C:
+  -1 - 2i
+  -1 + 2i
+> funT(x) = x^3 + 1
+  x^3 + 1
+> funT(x) = 0 ?
+  Error: degree > 2 not supported
+
+################ 14. ERRORS / INVALID INPUT ################
+> i = 3
+  Error: 'i' cannot be used as a variable name
+> var1 = 3
+  Error: names must contain only letters
+> 1 / 0 = ?
+  Error: division by zero
+> 5 % 0 = ?
+  Error: modulo by zero
+> 2 ^ -1 = ?
+  Error: only non-negative integer powers
+> 2 ^ 0.5 = ?
+  Error: only non-negative integer powers
+> (2 + 3
+  Error: unbalanced parentheses
+> 2 +
+  Error: syntax error
+> 2 + * 3
+  Error: syntax error
+> unknownvar + 1 = ?	Failed
+  Error: unknown variable 'unknownvar'
+> unknownfun(2) = ?
+  Error: unknown function 'unknownfun'
+> z = undefinedvar
+  Error: unknown variable 'undefinedvar'        (?)
+>                           (empty line)
+  (no output, prompt returns)
+> exit
+  (program quits cleanly; Ctrl+D and Ctrl+C must also exit without crash)
+
+
+################ BONUS (only graded if mandatory is perfect) ################
+# Command names for list/history/plot are implementation-specific; adapt them.
+
+################ B1. FUNCTION COMPOSITION ################
+> funA(x) = 2*x+1
+  2 * x + 1
+> funB(x) = 2 * x+1
+  2 * x + 1
+> funA(funB(x)) = ?
+  4 * x + 3
+> funC(x) = 3 * x
+  3 * x
+> funA(funC(x)) = ?
+  6 * x + 1
+> funC(funA(2)) = ?
+  15
+
+################ B2. USUAL FUNCTIONS ################
+> exp(0) = ?
+  1
+> sqrt(16) = ?
+  4
+> sqrt(2) = ?
+  1.414213562
+> abs(-5) = ?
+  5
+> abs(3 + 4i) = ?
+  5
+> cos(0) = ?
+  1
+> sin(0) = ?
+  0
+> tan(0) = ?
+  0
+> sqrt(-4) = ?
+  2i
+> funS(x) = sqrt(x) + 1
+  sqrt(x) + 1
+> funS(9) = ?
+  4
+
+################ B3. RADIANS ################
+> cos(pi) = ?
+  -1
+> sin(pi / 2) = ?
+  1
+
+################ B4. NORM ################
+> norm([[3,4]]) = ?
+  5
+> norm(3 + 4i) = ?
+  5
+
+################ B5. MATRIX INVERSION / DET / TRANSPOSE ################
+> inv([[1,2];[3,4]]) = ?
+  [ -2 , 1 ]
+  [ 1.5 , -0.5 ]
+> det([[1,2];[3,4]]) = ?
+  -2
+> inv([[1,2];[2,4]]) = ?
+  Error: matrix is not invertible
+> inv([[1,2,3]]) = ?
+  Error: matrix must be square
+> transpose([[1,2];[3,4]]) = ?
+  [ 1 , 3 ]
+  [ 2 , 4 ]
+
+################ B6. VECTORS ################
+> dot([[1,2,3]], [[4,5,6]]) = ?	Failed
+  32
+> cross([[1,2,3]], [[4,5,6]]) = ?	Failed
+  [ -3 , 6 , -3 ]
+> norm([[1,2,2]]) = ?
+  3
+
+################ B7. LIST VARIABLES ################
+> a = 1
+  1
+> m = [[1,2]]
+  [ 1 , 2 ]
+> f(x) = x + 1
+  x + 1
+> vars
+  a = 1
+  m = [ 1 , 2 ]
+  f(x) = x + 1
+
+################ B8. HISTORY ################
+> 1 + 1 = ?
+  2
+> a = 5
+  5
+> history
+  1: 1 + 1 = ?   ->  2
+  2: a = 5       ->  5
+
+################ B9. CURVE DISPLAY (manual check) ################
+> f(x) = x^2 - 1
+  x^2 - 1
+> plot(f)
+  (window/ASCII graph of a parabola, roots at x = -1 and x = 1, minimum at (0, -1))
