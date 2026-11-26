@@ -1,0 +1,31 @@
+  32
+  [ -3 , 6 , -3 ]
+  [ -3 ]
+  [ 6 ]
+  [ -3 ]
+  32
+  11
+  2i
+  [ 0 , 0 , 1 ]
+  [ 0 , 0 , -1 ]
+  [ 1 , 0 , 0 ]
+  [ 0 , 1 , 0 ]
+  [ 0 , 0 , 1 ]
+  0
+  2
+  dot([[x,1]], [[2,3]])
+  11
+  dot([[x,1]], [[2,3]])
+  11 * x
+  11 * x
+    Error: dot needs two vectors of the same length (got 2 and 3)
+    Error: dot needs two vectors (a matrix with one row or one column), not a number
+    Error: dot needs vectors (one row or one column), got a 2x2 matrix
+    Error: cross needs two vectors of 3 entries (got 2 and 2)
+    Error: cross needs two vectors (a matrix with one row or one column), not a number
+    Error: syntax error at column 14: expected ',' (dot takes two arguments) but found ')'
+    Error: syntax error at column 5: unexpected ')'
+    Error: syntax error at column 21: expected ')' to close the call to dot but found ','
+    Error: 'dot' is a built-in function and cannot be redefined
+    Error: 'cross' is a built-in function and cannot be redefined
+    Error: syntax error at column 7: expected ')' to close the call to sqrt but found ','

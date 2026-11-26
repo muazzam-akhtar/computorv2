@@ -1,0 +1,14 @@
+    Error: unknown variable 'unknownvar'
+    Error: unknown variable 'x'
+    Error: unknown variable 'xx'
+    Error: unknown variable 'x'
+    Error: unknown variable 'y'
+    Error: unknown variable 'a'
+  5
+  6
+    Error: unknown variable 'z'
+  x^2
+  y^2 + y
+  y^2
+    Error: unknown function 'g'
+    Error: unknown variable 'unknownvar'

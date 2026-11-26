@@ -116,10 +116,10 @@
   2
     Error: 'a' is a variable, not a function
     Error: the range must satisfy min < max
-    Error: usage: plot <function> [min max]
+    Error: usage: plot(f) or plot(f, min, max)  (also: plot f, plot f min max)
     Error: 'a' is not a valid range bound (use plain numbers, e.g. plot f -5 5)
-    Error: usage: plot <function> [min max]
-    Error: usage: plot <function> [min max]
+    Error: usage: plot(f) or plot(f, min, max)  (also: plot f, plot f min max)
+    Error: usage: plot(f) or plot(f, min, max)  (also: plot f, plot f min max)
     Error: 'plot' is a command and cannot be used as a name
   1. f(x) = x^2 - 4
       x^2 - 4
