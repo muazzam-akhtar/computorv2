@@ -7,7 +7,7 @@
     Error: syntax error at column 8: unexpected end of input
   3
   x^2 - 4 = 0
-  Deux solutions sur R :
+  Two solutions: R :
   -2
   2
   a = 2
@@ -26,6 +26,6 @@
       3
   5. x^2 - 4 = 0 ?
       x^2 - 4 = 0
-      Deux solutions sur R :
+      Two solutions: R :
       -2
       2

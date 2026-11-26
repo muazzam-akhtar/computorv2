@@ -1,0 +1,20 @@
+f(x) = x^2 - 4
+plot(f)
+PLOT(F, -3, 3)
+plot ( f , -3 , 3 )
+plot f -3 3
+plot(f, 0.5, 2.5)
+plot(f
+plot(f, 1)
+plot(f, 1, 2, 3)
+plot(f,)
+plot()
+plot(f, 5, 1)
+plot(f, a, 3)
+plot(nope)
+a = 2
+plot(a)
+plot(f g)
+plot(x) = 3
+plot = 3
+history
