@@ -1,6 +1,7 @@
 #include "../includes/Parser.hpp"
 #include "../includes/Lexer.hpp"
 #include <cmath>
+#include "../includes/Builtins.hpp"
 
 std::string	Statement::describe() const
 {
@@ -180,8 +181,14 @@ NodePtr	Parser::primary()
 			if (match(T_LPAREN))
 			{
 				NodePtr	arg = expr();
+				NodePtr	second;
+				if (Builtins::arity(name) == 2)
+				{
+					expect(T_COMMA, "',' (" + name + " takes two arguments)");
+					second = expr();
+				}
 				expect(T_RPAREN, "')' to close the call to " + name);
-				return NodePtr(new CallNode(name, arg));
+				return NodePtr(new CallNode(name, arg, second));
 			}
 			if (name == "pi")
 				return NodePtr(new ConstantNode(Value(Complex(Rational(M_PI)))));

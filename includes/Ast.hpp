@@ -82,11 +82,12 @@ class MatrixNode : public Node
 class CallNode : public Node
 {
 	public:
-		CallNode(const std::string &n, const NodePtr &a) : name(n), arg(a) {}
+		CallNode(const std::string &n, const NodePtr &a, const NodePtr &b = NodePtr()) : name(n), arg(a), arg2(b) {}
 		NodeKind			kind() const {	return N_CALL;	}
-		std::string			toString() const {	return name + "(" + arg->toString() + ")";	}
+		std::string			toString() const {	return name + "(" + arg->toString() + (arg2 ? ", " + arg2->toString() : "") + ")";	}
 		const std::string	name;
 		const NodePtr		arg;
+		const NodePtr		arg2;
 };
 
 class ConstantNode : public Node
